@@ -2,65 +2,96 @@ import java.util.Arrays;
 
 public class SandwichExtractor
 {
-    public static boolean isOlives(String word)
+    private static boolean isOlives(String word)
     {
         return word.equals("olives");
     }
 
-    public static int hasOlives(String[] ingredients)
+
+    private static String[] oneIngredientOrNone(String word)
     {
-        int size = ingredients.length;
-        int counter = 0;
-        for(int i = 0; i < size; ++i)
+        int index = word.indexOf("bread");
+
+        if(index == -1)
         {
-            if(ingredients[i].equals("olives"))
-            {
-                counter++;
-            }
+            return new String[]{};
         }
-        return counter;
+
+        int index2 = word.indexOf("bread", index + 5);
+
+        if(index2 == -1)
+        {
+            return new String[]{};
+        }
+
+        String onlyOne = word.substring(index + 5, index2);
+
+        if(isOlives(onlyOne))
+        {
+            return new String[]{};
+        }
+
+        return new String[]{onlyOne};
     }
 
-    public static String[] removeOlives(String[] ingredients, int olives)
+    private static String[] removeOlivesAndSelectIngredients(String[] words)
     {
-        int size = ingredients.length;
-        String[] removedOlives = new String[size - olives];
+        int size = words.length;
+        String[] ingredients = new String[size];
 
-        int j = 0;
+        int countOlive = 0;
+
+        int index = words[0].indexOf("bread");
+        int index2 = words[size - 1].indexOf("bread");
 
         for(int i = 0; i < size; ++i)
         {
-            if(!ingredients[i].equals("olives"))
+            String temp;
+            if (i == 0)
             {
-                removedOlives[j++] = ingredients[i];
+                temp = words[i].substring(index + 5);
+
+                if (isOlives(temp))
+                {
+                    countOlive++;
+                }
+                else
+                {
+                    ingredients[i] = temp;
+                }
+            }
+            else if (i == size - 1)
+            {
+                temp = words[i].substring(0, index2);
+                if (isOlives(temp))
+                {
+                    countOlive++;
+                }
+                else
+                {
+                    ingredients[i - countOlive] = temp;
+                }
+            }
+            else
+            {
+                if (isOlives(words[i]))
+                {
+                    countOlive++;
+                }
+                else
+                {
+                    ingredients[i - countOlive] = words[i];
+                }
             }
         }
-        return removedOlives;
+        return Arrays.copyOf(ingredients, size - countOlive);
     }
 
     public static String[] extractIngredients(String sandwich)
     {
-        String[] ingredients = {};
-
         if(sandwich.isEmpty())
         {
-            return ingredients;
-        }
-
-        int index1 = sandwich.indexOf("bread");
-        int index2;
-
-        if(index1 == -1)
-        {
-            return ingredients;
-        }
-        else
-        {
-            index2 = sandwich.indexOf("bread", index1 + 5);
-            if(index2 == -1)
-            {
-                return ingredients;
-            }
+            return new String[]{};
         }
 
         String[] words = sandwich.split("-");
@@ -68,53 +99,33 @@ public class SandwichExtractor
 
         if(size == 1)
         {
-            String onlyOne = words[0].substring(index1 + 5, index2);
-            if(isOlives(onlyOne))
-            {
-                return ingredients;
-            }
-
-            ingredients = new String[1];
-            ingredients[0] = onlyOne;
-            return ingredients;
-
+            return oneIngredientOrNone(words[0]);
         }
-        int sizeFirst = words[0].length();
-        String firstIngredient = words[0].substring(index1 + 5, sizeFirst);
 
-        index2 = words[size - 1].indexOf("bread");
-        String lastIngredient = words[size - 1].substring(0, index2);
+        int index = words[0].indexOf("bread");
+        int index2 = words[size - 1].indexOf("bread");
 
-        ingredients = new String[size];
-        ingredients[0] = firstIngredient;
-
-        for(int i = 1; i < size - 1; ++i)
+        if(index == -1 || index2 == -1)
         {
-            ingredients[i] = words[i];
+            return new String[]{};
         }
 
-        ingredients[size - 1] =  lastIngredient;
-
+        String[] ingredients = removeOlivesAndSelectIngredients(words);
         Arrays.sort(ingredients);
-
-        int olives = hasOlives(ingredients);
-
-        if(olives > 0)
-        {
-            ingredients = removeOlives(ingredients,olives);
-        }
 
         return ingredients;
     }
+    
 
-   /* public static void main(String[] args)
+
+    public static void main(String[] args)
     {
-        String[] ingredients = extractIngredients("asdbreadham-olives-tomato-olives-mayobreadblabla");
+        String[] ingredients = extractIngredients("asdbreadham-tomato-mayobreadblabla");
         for(String i: ingredients)
         {
             System.out.println(i);
         }
-    }*/
+    }
 }
 
 
