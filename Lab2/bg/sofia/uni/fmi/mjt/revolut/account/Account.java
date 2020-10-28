@@ -1,5 +1,7 @@
 package bg.sofia.uni.fmi.mjt.revolut.account;
 
+import java.util.Objects;
+
 public abstract class Account
 {
     private double amount;
@@ -42,5 +44,10 @@ public abstract class Account
             return false;
         }
         return ((Account) obj).IBAN.equals(this.IBAN);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(IBAN);
     }
 }

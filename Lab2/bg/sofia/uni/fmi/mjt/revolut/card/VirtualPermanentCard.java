@@ -25,7 +25,7 @@ public class VirtualPermanentCard extends GeneralCard
         {
             return false;
         }
-        return ((VirtualPermanentCard) obj).number == this.number;
+        return ((VirtualPermanentCard) obj).number.equals(this.number);
     }
 
     @Override

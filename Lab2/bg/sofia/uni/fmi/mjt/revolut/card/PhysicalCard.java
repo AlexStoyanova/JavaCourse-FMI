@@ -25,7 +25,7 @@ public class PhysicalCard extends GeneralCard
         {
             return false;
         }
-        return ((PhysicalCard) obj).number == this.number;
+        return ((PhysicalCard) obj).number.equals(this.number);
     }
 
     @Override

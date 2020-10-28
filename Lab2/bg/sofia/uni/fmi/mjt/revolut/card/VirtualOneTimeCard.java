@@ -25,7 +25,7 @@ public class VirtualOneTimeCard extends GeneralCard
         {
             return false;
         }
-        return ((VirtualOneTimeCard) obj).number == this.number;
+        return ((VirtualOneTimeCard) obj).number.equals(this.number);
     }
 
     @Override
