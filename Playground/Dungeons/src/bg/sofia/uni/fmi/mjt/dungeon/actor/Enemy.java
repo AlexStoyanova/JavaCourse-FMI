@@ -11,4 +11,9 @@ public class Enemy extends AbstractActor
         this.weapon = weapon;
         this.spell = spell;
     }
+
+    public Enemy(Enemy enemy)
+    {
+        super(enemy);
+    }
 }

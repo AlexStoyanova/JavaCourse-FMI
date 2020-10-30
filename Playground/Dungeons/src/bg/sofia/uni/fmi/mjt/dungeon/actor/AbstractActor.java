@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.mjt.dungeon.actor;
 
+import bg.sofia.uni.fmi.mjt.dungeon.treasure.AbstractWeapons;
 import bg.sofia.uni.fmi.mjt.dungeon.treasure.Spell;
 import bg.sofia.uni.fmi.mjt.dungeon.treasure.Weapon;
 
@@ -17,6 +18,15 @@ public abstract class AbstractActor implements Actor
         this.name = name;
         this.health = health;
         this.mana = mana;
+    }
+
+    public AbstractActor(AbstractActor abstractActor)
+    {
+        this.name = abstractActor.name;
+        this.health = abstractActor.health;
+        this.mana = abstractActor.mana;
+        this.weapon = new Weapon(abstractActor.weapon);
+        this.spell =  new Spell(abstractActor.spell);
     }
 
     public String getName()

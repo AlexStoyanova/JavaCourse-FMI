@@ -1,5 +1,6 @@
 package bg.sofia.uni.fmi.mjt.dungeon.actor;
 
+import bg.sofia.uni.fmi.mjt.dungeon.treasure.HealthPotion;
 import bg.sofia.uni.fmi.mjt.dungeon.treasure.Spell;
 import bg.sofia.uni.fmi.mjt.dungeon.treasure.Weapon;
 
@@ -13,6 +14,13 @@ public class Hero extends AbstractActor
         super(name, health, mana);
         initialHealth = health;
         initialMana = mana;
+    }
+
+    public Hero(Hero hero)
+    {
+        super(hero);
+        initialHealth = hero.initialHealth;
+        initialMana = hero.initialMana;
     }
 
     public void takeHealing(int healingPoints)

@@ -11,6 +11,11 @@ public abstract class Potion implements Treasure
         this.points = points;
     }
 
+    public Potion(Potion potion)
+    {
+        this.points = potion.points;
+    }
+
     public int heal()
     {
         return points;

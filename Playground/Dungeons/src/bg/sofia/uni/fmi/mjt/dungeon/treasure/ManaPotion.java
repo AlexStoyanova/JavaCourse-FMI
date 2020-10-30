@@ -9,6 +9,11 @@ public class ManaPotion extends Potion
         super(manaPoints);
     }
 
+    public ManaPotion(ManaPotion manaPotion)
+    {
+        super(manaPotion);
+    }
+
     public String collect(Hero hero)
     {
         hero.takeMana(points);

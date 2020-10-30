@@ -13,6 +13,12 @@ public abstract class AbstractWeapons implements Treasure
         this.damage = damage;
     }
 
+    public AbstractWeapons(AbstractWeapons weapons)
+    {
+        this.name = weapons.name;
+        this.damage = weapons.damage;
+    }
+
     public String getName()
     {
         return name;

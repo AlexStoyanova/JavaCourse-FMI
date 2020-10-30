@@ -9,6 +9,11 @@ public class Weapon extends AbstractWeapons
         super(name, damage);
     }
 
+    public Weapon(Weapon weapon)
+    {
+        super(weapon);
+    }
+
     public String collect(Hero hero)
     {
         hero.equip(this);

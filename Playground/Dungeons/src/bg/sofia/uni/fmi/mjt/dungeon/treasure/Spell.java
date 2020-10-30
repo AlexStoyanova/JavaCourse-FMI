@@ -12,6 +12,12 @@ public class Spell extends AbstractWeapons
         this.manaCost = manaCost;
     }
 
+    public Spell(Spell spell)
+    {
+        super(spell);
+        this.manaCost = spell.manaCost;
+    }
+
     public int getManaCost()
     {
         return manaCost;

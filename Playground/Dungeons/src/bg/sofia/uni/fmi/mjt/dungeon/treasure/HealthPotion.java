@@ -9,6 +9,11 @@ public class HealthPotion extends Potion
         super(healingPoints);
     }
 
+    public HealthPotion(HealthPotion healthPotion)
+    {
+        super(healthPotion);
+    }
+
     public String collect(Hero hero)
     {
         hero.takeHealing(points);
