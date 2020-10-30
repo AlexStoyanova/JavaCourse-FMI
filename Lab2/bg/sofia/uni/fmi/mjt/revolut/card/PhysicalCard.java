@@ -15,21 +15,4 @@ public class PhysicalCard extends GeneralCard
         return "PHYSICAL";
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if(obj == this)
-        {
-            return true;
-        }
-        if(!(obj instanceof PhysicalCard))
-        {
-            return false;
-        }
-        return ((PhysicalCard) obj).number.equals(this.number);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(number);
-    }
 }

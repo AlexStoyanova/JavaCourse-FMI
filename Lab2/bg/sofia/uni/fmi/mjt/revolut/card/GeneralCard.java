@@ -1,6 +1,7 @@
 package bg.sofia.uni.fmi.mjt.revolut.card;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public abstract class GeneralCard implements Card
 {
@@ -51,4 +52,21 @@ public abstract class GeneralCard implements Card
         isBlocked = true;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == this)
+        {
+            return true;
+        }
+        if(!(obj instanceof GeneralCard))
+        {
+            return false;
+        }
+        return ((GeneralCard) obj).number.equals(this.number);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(number);
+    }
 }
