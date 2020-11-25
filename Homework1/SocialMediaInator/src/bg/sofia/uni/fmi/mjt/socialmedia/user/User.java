@@ -70,7 +70,7 @@ public class User {
                 index++;
             }
         }
-        return Collections.unmodifiableCollection(sortedPublications);
+        return Collections.unmodifiableCollection(sortedPublications.subList(0, index));
     }
 
     public Collection<Content> getContentsWithTag(String tag) {
@@ -118,7 +118,7 @@ public class User {
         int indexToGet = 0;
 
         while (!sortedPublications.isEmpty() && indexToGet != operations.size()) {
-            if (sortedPublications.get(0).getPublishedOn().isBefore(operations.get(indexToGet).getDateOfActivity())) {
+            if (sortedPublications.get(0).getPublishedOn().isAfter(operations.get(indexToGet).getDateOfActivity())) {
                 activities.add(sortedPublications.remove(0).getDescription());
             } else {
                 activities.add(operations.get(indexToGet++).getDescription());
@@ -133,7 +133,7 @@ public class User {
             return activities;
         } else if (sortedPublications.isEmpty()) {
             while (index < operations.size()) {
-                activities.add(0, operations.get(index++).getDescription());
+                activities.add(operations.get(index++).getDescription());
             }
         } else {
             while (!sortedPublications.isEmpty()) {

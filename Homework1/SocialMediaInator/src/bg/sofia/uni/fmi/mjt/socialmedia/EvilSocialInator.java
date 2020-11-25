@@ -121,7 +121,7 @@ public class EvilSocialInator implements SocialMediaInator {
         }
 
         int mostPopular = 0;
-        String nameOfUser = "";
+        String nameOfUser = "No users mentions";
         for (User user : users.values()) {
             if (user.getNumberOfMentions() > mostPopular) {
                 mostPopular = user.getNumberOfMentions();
@@ -179,7 +179,9 @@ public class EvilSocialInator implements SocialMediaInator {
     private void addMentionsInUsers(Publication publication) {
         Collection<String> mentions = publication.getMentions();
         for (String mention : mentions) {
-            users.get(mention.substring(1)).increaseMentions();
+            if (users.containsKey(mention.substring(1))) {
+                users.get(mention.substring(1)).increaseMentions();
+            }
         }
     }
 
@@ -207,4 +209,100 @@ public class EvilSocialInator implements SocialMediaInator {
             return (publication2.getPopularity()) - (publication1.getPopularity());
         }
     };
+
+    public static void main(String[] args) {
+        EvilSocialInator evilSocialInator = new EvilSocialInator();
+
+        evilSocialInator.register("Alex");
+        evilSocialInator.register("Sian");
+        evilSocialInator.register("Gabi");
+
+
+        Collection<Content> emptyContents = evilSocialInator.getNMostPopularContent(3);
+        System.out.println(emptyContents.isEmpty());
+
+
+        String id1 = evilSocialInator.publishPost("Alex", LocalDateTime.of(2020, 10, 21, 20, 20), "I love #cats");
+        String id2 = evilSocialInator.publishPost("Alex", LocalDateTime.of(2020, 10, 26, 20, 20), "I love #dogs");
+        String id3 = evilSocialInator.publishPost("Alex", LocalDateTime.now(), "Hey, everyone @Siann !");
+        String id4 = evilSocialInator.publishPost("Gabi", LocalDateTime.now(), "Hey, @Alexx");
+        String id5 = evilSocialInator.publishStory("Alex", LocalDateTime.now(), "@Siann #dogs ");
+        String id6 = evilSocialInator.publishStory("Alex", LocalDateTime.now(), "@Siann");
+
+        List<String> withoutOperations = evilSocialInator.getActivityLog("Alex");
+
+        evilSocialInator.like("Alex", id4);
+        evilSocialInator.like("Gabi", id3);
+        evilSocialInator.like("Sian", id1);
+        evilSocialInator.like("Sian", id2);
+        evilSocialInator.like("Alex", id3);
+        evilSocialInator.comment("Alex", "Test", id1);
+        evilSocialInator.comment("Alex", "Test2", id2);
+        evilSocialInator.comment("Alex", "Test3", id1);
+
+        List<String> withoutPubs = evilSocialInator.getActivityLog("Sian");
+
+        evilSocialInator.comment("Alex", "Some", id3);
+        evilSocialInator.comment("Alex", "CAtsss" , id4);
+
+
+        Collection<Content> nMostPopularContents = evilSocialInator.getNMostPopularContent(1);
+
+        for(Content content : nMostPopularContents) {
+            System.out.println(content);
+        }
+
+        Collection<Content> nMostRecentContents = evilSocialInator.getNMostRecentContent("Alex", 4);
+
+        for(Content content : nMostRecentContents) {
+            System.out.println(content);
+        }
+        System.out.println(evilSocialInator.getMostPopularUser());
+
+        Collection<Content> contentsWithTags = evilSocialInator.findContentByTag("#dogs");
+
+        for(Content content : contentsWithTags) {
+            System.out.println(content);
+            System.out.println(" ");
+        }
+
+       /* String id1 = evilSocialInator.publishPost("Gabi", LocalDateTime.now(), "Hey, @Alexx");
+        evilSocialInator.comment("Alex", "Some", id1);
+        try {
+            Thread.sleep(5);
+        } catch (Exception e) {
+
+        }
+        String id3 = evilSocialInator.publishPost("Alex", LocalDateTime.now(), "Hey, everyone @Siann !");
+        try {
+            Thread.sleep(5);
+        } catch (Exception e) {
+
+        }
+        String id4 = evilSocialInator.publishPost("Alex", LocalDateTime.now(), "Hey, @Alexx");
+        try {
+            Thread.sleep(5);
+        } catch (Exception e) {
+
+        }
+        evilSocialInator.like("Alex", id3);
+        try {
+            Thread.sleep(5);
+        } catch (Exception e) {
+
+        }
+        evilSocialInator.like("Alex", id4);
+        try {
+            Thread.sleep(5);
+        } catch (Exception e) {
+
+        }
+        evilSocialInator.like("Alex", id3); */
+
+        List<String> activity = evilSocialInator.getActivityLog("Alex");
+
+        for(String str : activity) {
+            System.out.println(str);
+        }
+    }
 }
