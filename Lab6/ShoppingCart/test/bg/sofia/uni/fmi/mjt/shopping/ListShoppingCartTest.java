@@ -39,8 +39,10 @@ public class ListShoppingCartTest {
 
         Collection<Item> returnedItems = listShoppingCart.getUniqueItems();
 
-        boolean isUnique = uniqueItems.containsAll(returnedItems) && returnedItems.containsAll(uniqueItems);
-        assertTrue("Unique items.", isUnique);
+        boolean hasAllReturnedItems = uniqueItems.containsAll(returnedItems);
+        boolean hasAllUniqueItems = returnedItems.containsAll(uniqueItems);
+        assertTrue("Unique items contain all returned items.", hasAllReturnedItems);
+        assertTrue("Returned items contain all unique items.", hasAllUniqueItems);
     }
 
     @Test
@@ -54,20 +56,25 @@ public class ListShoppingCartTest {
 
         Collection<Item> returnedItems = listShoppingCart.getUniqueItems();
 
-        boolean isUnique = uniqueItems.containsAll(returnedItems) && returnedItems.containsAll(uniqueItems);
-        assertTrue("Unique items.", isUnique);
+        boolean hasAllReturnedItems = uniqueItems.containsAll(returnedItems);
+        boolean hasAllUniqueItems = returnedItems.containsAll(uniqueItems);
+        assertTrue("Unique items contain all returned items.", hasAllReturnedItems);
+        assertTrue("Returned items contain all unique items.", hasAllUniqueItems);
     }
 
     @Test
     public void testGetSortedItemsOneItem() {
         listShoppingCart.addItem(ITEM_1);
+
         Collection<Item> oneItem = new LinkedList<>();
         oneItem.add(ITEM_1);
 
         Collection<Item> sortedItems = listShoppingCart.getSortedItems();
 
-        boolean isSorted = sortedItems.containsAll(oneItem) && oneItem.containsAll(sortedItems);
-        assertTrue("Sorted items.", isSorted);
+        boolean hasOneItem = sortedItems.containsAll(oneItem);
+        boolean hasAllSortedItems = oneItem.containsAll(sortedItems);
+        assertTrue("Sorted items contain one item.", hasOneItem);
+        assertTrue("One item contains sorted items.", hasAllSortedItems);
     }
 
     @Test
@@ -111,8 +118,10 @@ public class ListShoppingCartTest {
 
         Collection<Item> sortedItems = listShoppingCart.getSortedItems();
 
-        boolean isSorted = sortedItems.containsAll(items) && items.containsAll(sortedItems);
-        assertTrue("Sorted items.", isSorted);
+        boolean hasItems = sortedItems.containsAll(items);
+        boolean hasSortedItems = items.containsAll(sortedItems);
+        assertTrue("Sorted items contain items.", hasItems);
+        assertTrue("Items contain sorted items.", hasSortedItems);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -146,8 +155,10 @@ public class ListShoppingCartTest {
         Collection<Item> oneItem = new LinkedList<>();
         oneItem.add(ITEM_1);
 
-        boolean isRemoved = oneItem.containsAll(listShoppingCart.items) && listShoppingCart.items.containsAll(oneItem);
-        assertTrue("Remove items.", isRemoved);
+        boolean isRemoved1 = oneItem.containsAll(listShoppingCart.items);
+        boolean isRemoved2 = listShoppingCart.items.containsAll(oneItem);
+        assertTrue("Remove items.", isRemoved1);
+        assertTrue("Remove items.", isRemoved2);
     }
 
     @Test
@@ -159,8 +170,10 @@ public class ListShoppingCartTest {
         Collection<Item> oneItem = new LinkedList<>();
         oneItem.add(ITEM_2);
 
-        boolean isRemoved = oneItem.containsAll(listShoppingCart.items) && listShoppingCart.items.containsAll(oneItem);
-        assertTrue("Remove items.", isRemoved);
+        boolean isRemoved1 = oneItem.containsAll(listShoppingCart.items);
+        boolean isRemoved2 = listShoppingCart.items.containsAll(oneItem);
+        assertTrue("Remove items.", isRemoved1);
+        assertTrue("Remove items.", isRemoved2);
     }
 
     @Test
