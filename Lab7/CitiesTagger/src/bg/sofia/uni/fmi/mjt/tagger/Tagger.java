@@ -13,7 +13,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.Scanner;
 import java.util.Set;
+
+import java.nio.file.Path;
+import java.nio.file.Files;
 
 public class Tagger {
 
@@ -82,16 +87,11 @@ public class Tagger {
     }
 
     private void processTextWithCities(Reader text, Writer output) {
-        try (BufferedReader textBufferedReader = new BufferedReader(text);
+        try (Scanner textBufferedReader = new Scanner(new BufferedReader(text));
                 BufferedWriter textBufferedWriter = new BufferedWriter(output)) {
+            Pattern pat = Pattern.compile(".*\\R|.+\\z");
             String line;
-            boolean isFirstLine = true;
-            while ((line = textBufferedReader.readLine()) != null) {
-                if (!isFirstLine) {
-                    textBufferedWriter.append(System.lineSeparator());
-                } else {
-                    isFirstLine = false;
-                }
+            while ((line = textBufferedReader.findWithinHorizon(pat, 0)) != null) {
                 textBufferedWriter.append(changeLine(line));
             }
             textBufferedWriter.flush();
@@ -218,4 +218,20 @@ public class Tagger {
             return o2.numberOfTags() - o1.numberOfTags();
         }
     };
+
+    public static void main(String[] args) {
+        Path path1 = Path.of("world-cities.txt");
+        Path path2 = Path.of("essay.txt");
+        Path path3 = Path.of("output.txt");
+        try (BufferedReader br1 = Files.newBufferedReader(path1);
+             BufferedReader br2 = Files.newBufferedReader(path2);
+             BufferedWriter br3 = Files.newBufferedWriter(path3)) {
+            Tagger tagger = new Tagger(br1);
+
+            tagger.tagCities(br2, br3);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
