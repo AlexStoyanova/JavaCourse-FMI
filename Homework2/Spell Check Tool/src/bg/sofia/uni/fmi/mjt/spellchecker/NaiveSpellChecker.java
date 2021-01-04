@@ -162,7 +162,7 @@ public class NaiveSpellChecker implements SpellChecker {
     }
 
     private Map<String, Integer> makeVectorOfWord(String word) {
-        HashMap<String, Integer> vector = new HashMap<>();
+        Map<String, Integer> vector = new HashMap<>();
         int numberOfDuplicates;
         int wordLength = word.length();
         String twoGram;
