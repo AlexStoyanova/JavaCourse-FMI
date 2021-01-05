@@ -8,7 +8,8 @@ import java.util.Scanner;
 
 public class WishListClient {
     private static final String SERVER_HOST = "localhost";
-    private static final ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+    private static final int BUFFER_SIZE = 1024;
+    private static final ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 
     private final int port;
 
@@ -42,16 +43,9 @@ public class WishListClient {
                     break;
                 }
             }
-
         } catch (IOException e) {
             System.out.println("There is a problem with the network communication");
             e.printStackTrace();
         }
-        System.out.println("Client stopped");
-    }
-
-    public static void main(String[] args) {
-        WishListClient wishListClient = new WishListClient(8888);
-        wishListClient.start();
     }
 }

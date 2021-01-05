@@ -29,6 +29,9 @@ public class MessageConstants {
             "[ Gift %s for student %s submitted successfully ]";
     static final String NO_STUDENTS_IN_WISH_LIST_MESSAGE =
             "[ There are no students present in the wish list ]";
+    static final String INCOMPLETE_COMMAND_MESSAGE =
+            "[ Incomplete command! Please enter full command ]";
 
-    private MessageConstants() { }
+    private MessageConstants() {
+    }
 }

@@ -24,6 +24,7 @@ public class WishListServer implements AutoCloseable {
     private static final int USERNAME_INDEX = 1;
     private static final int PASSWORD_INDEX = 2;
     private static final int WISH_INDEX = 2;
+    private static final int MAX_WORDS_FOR_COMMAND = 3;
     private static final String MESSAGE_PROBLEM_NETWORK_COMMUNICATION =
             "There is a problem with the network communication.";
 
@@ -122,18 +123,24 @@ public class WishListServer implements AutoCloseable {
 
     private String executeCommand(SocketChannel currentChannel, String receivedMessage, String username) {
         String[] commandParts = receivedMessage.replaceAll("\\r?\\n", "")
-                .split("\\s+", 3);
+                .split("\\s+", MAX_WORDS_FOR_COMMAND);
 
         switch (commandParts[COMMAND_INDEX]) {
             case "register" -> {
                 if (username != null) {
                     return ALREADY_LOGGED_IN_MESSAGE;
                 }
+                if (commandParts.length < MAX_WORDS_FOR_COMMAND) {
+                    return INCOMPLETE_COMMAND_MESSAGE;
+                }
                 return register(commandParts[USERNAME_INDEX], commandParts[PASSWORD_INDEX]);
             }
             case "login" -> {
                 if (username != null) {
                     return ALREADY_LOGGED_IN_MESSAGE;
+                }
+                if (commandParts.length < MAX_WORDS_FOR_COMMAND) {
+                    return INCOMPLETE_COMMAND_MESSAGE;
                 }
                 return login(commandParts[USERNAME_INDEX], commandParts[PASSWORD_INDEX], currentChannel);
             }
@@ -145,6 +152,9 @@ public class WishListServer implements AutoCloseable {
             }
             case "post-wish" -> {
                 if (username != null) {
+                    if (commandParts.length < MAX_WORDS_FOR_COMMAND) {
+                        return INCOMPLETE_COMMAND_MESSAGE;
+                    }
                     return postWish(commandParts[USERNAME_INDEX], commandParts[WISH_INDEX]);
                 }
                 return NOT_LOGGED_IN_MESSAGE;
@@ -211,7 +221,8 @@ public class WishListServer implements AutoCloseable {
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().wishes()));
 
             if (!usersWithWishes.isEmpty()) {
-                Optional<Map.Entry<String, Set<String>>> studentWithWishes = usersWithWishes.entrySet().stream().findAny();
+                Optional<Map.Entry<String, Set<String>>> studentWithWishes =
+                        usersWithWishes.entrySet().stream().findAny();
                 String wishes = String.join(", ", studentWithWishes.get().getValue());
                 registeredStudents.get(studentWithWishes.get().getKey()).removeWishes();
                 return "[ " + studentWithWishes.get().getKey() + ": " + "[" + wishes + "]" + " ]";
@@ -229,10 +240,5 @@ public class WishListServer implements AutoCloseable {
         SocketChannel accept = sockChannel.accept();
         accept.configureBlocking(false);
         accept.register(selector, SelectionKey.OP_READ);
-    }
-
-    public static void main(String[] args) {
-        WishListServer wishListServer = new WishListServer(8888);
-        wishListServer.start();
     }
 }
