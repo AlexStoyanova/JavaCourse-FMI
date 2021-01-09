@@ -8,6 +8,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringReader;
+import java.net.InetAddress;
 import java.net.Socket;
 
 import static org.junit.Assert.assertEquals;
@@ -20,219 +22,237 @@ public class WishListServerTest {
     private static WishListServer wishListServer;
 
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException {
         serverStarterThread = new Thread(() -> {
             try (WishListServer wls = new WishListServer(SERVER_PORT)) {
                 wishListServer = wls;
                 wishListServer.start();
             } catch (Exception e) {
-                System.out.println("An error has occured");
+                System.out.println("An error has occurred");
                 e.printStackTrace();
             }
         });
         serverStarterThread.start();
+        Thread.sleep(200);
     }
 
     @After
-    public void clean() {
+    public void clean() throws InterruptedException {
         wishListServer.stop();
         serverStarterThread.interrupt();
+        Thread.sleep(200);
     }
 
     @Test
     public void testRegisterCommandWithValidInput() {
-        assertEquals("[ Username Alex successfully registered ]",
-                sendAndReceiveOneMessageFromServer("register Alex Abcd1234"));
+        assertEquals("User must be successfully registered!",
+                "[ Username Alex successfully registered ]",
+                sendAndReceiveMessageFromServer("register Alex Abcd1234"));
     }
 
     @Test
     public void testRegisterCommandWithInvalidUsername() {
-        assertEquals("[ Username Alex$x is invalid, select a valid one ]",
-                sendAndReceiveOneMessageFromServer("register Alex$x Abcd1234"));
+        assertEquals("User must not be successfully registered!",
+                "[ Username Alex$x is invalid, select a valid one ]",
+                sendAndReceiveMessageFromServer("register Alex$x Abcd1234"));
     }
 
     @Test
     public void testRegisterCommandWithTakenUsername() {
-        sendAndReceiveOneMessageFromServer("register Alex Abcd1234");
-        assertEquals("[ Username Alex is already taken, select another one ]",
-                sendAndReceiveOneMessageFromServer("register Alex Abcd"));
+        assertEquals("Username is already taken!",
+                "[ Username Alex is already taken, select another one ]",
+                sendAndReceiveMessageFromServer("register Alex Abcd1234"
+                        + System.lineSeparator()
+                        + "register Alex Abcd"));
     }
 
     @Test
     public void testRegisterCommandWithIncompleteInput() {
-        assertEquals("[ Incomplete command! Please enter full command ]",
-                sendAndReceiveOneMessageFromServer("register Alex"));
+        assertEquals("Incomplete command!",
+                "[ Incomplete command! Please enter full command ]",
+                sendAndReceiveMessageFromServer("register Alex"));
     }
 
     @Test
     public void testLoginCommandWithValidInput() {
-        sendAndReceiveOneMessageFromServer("register Alex Abcd1234");
-        assertEquals("[ User Alex successfully logged in ]",
-                sendAndReceiveOneMessageFromServer("login Alex Abcd1234"));
+        assertEquals("User must be successfully logged in!",
+                "[ User Alex successfully logged in ]",
+                sendAndReceiveMessageFromServer("register Alex Abcd1234"
+                        + System.lineSeparator()
+                        + "login Alex Abcd1234"));
     }
 
     @Test
     public void testLoginCommandWithInvalidUsername() {
-        sendAndReceiveOneMessageFromServer("register Alex 1234");
-        assertEquals("[ Invalid username/password combination ]",
-                sendAndReceiveOneMessageFromServer("login Alexx 1234"));
+        assertEquals("Invalid username or password was entered!",
+                "[ Invalid username/password combination ]",
+                sendAndReceiveMessageFromServer("register Alex 1234"
+                        + System.lineSeparator()
+                        + "login Alexx 1234"));
     }
 
     @Test
     public void testLoginCommandWithInvalidPassword() {
-        sendAndReceiveOneMessageFromServer("register Alex 1234");
-        assertEquals("[ Invalid username/password combination ]",
-                sendAndReceiveOneMessageFromServer("login Alex 123456"));
+        assertEquals("Invalid username or password was entered!",
+                "[ Invalid username/password combination ]",
+                sendAndReceiveMessageFromServer("register Alex 1234"
+                        + System.lineSeparator()
+                        + "login Alex 123456"));
     }
+
 
     @Test
     public void testPostWishCommandWithValidInput() {
-        sendAndReceiveOneMessageFromServer("register Alex 123");
-        assertEquals("[ Gift cat for student Alex submitted successfully ]",
-                sendAndReceiveTwoMessagesFromServer("login Alex 123", "post-wish Alex cat"));
+        assertEquals("Successfully post wish for existing user!",
+                "[ Gift cat for student Alex submitted successfully ]",
+                sendAndReceiveMessageFromServer("register Alex 123"
+                        + System.lineSeparator()
+                        + "login Alex 123"
+                        + System.lineSeparator()
+                        + "post-wish Alex cat"));
     }
 
     @Test
     public void testPostWishCommandWithSameGift() {
-        sendAndReceiveOneMessageFromServer("register Alex 123");
-        assertEquals("[ The same gift for student Alex was already submitted ]",
-                sendAndReceiveThreeMessagesFromServer("login Alex 123",
-                        "post-wish Alex cat", "post-wish Alex cat"));
+        assertEquals("The same gift was already submitted!",
+                "[ The same gift for student Alex was already submitted ]",
+                sendAndReceiveMessageFromServer("register Alex 123"
+                        + System.lineSeparator()
+                        + "login Alex 123"
+                        + System.lineSeparator()
+                        + "post-wish Alex cat"
+                        + System.lineSeparator()
+                        + "post-wish Alex cat"));
     }
 
     @Test
     public void testPostWishCommandForNotRegisteredStudent() {
-        sendAndReceiveOneMessageFromServer("register Alex 123");
-        assertEquals("[ Student with username Sian is not registered ]",
-                sendAndReceiveTwoMessagesFromServer("login Alex 123", "post-wish Sian dog"));
+        assertEquals("Post-wish for not registered user is not allowed!",
+                "[ Student with username Sian is not registered ]",
+                sendAndReceiveMessageFromServer("register Alex 123"
+                        + System.lineSeparator()
+                        + "login Alex 123"
+                        + System.lineSeparator()
+                        + "post-wish Sian dog"));
     }
 
     @Test
     public void testPostWishCommandWhenUserIsNotLoggedIn() {
-        sendAndReceiveOneMessageFromServer("register Alex 123");
-        assertEquals("[ You are not logged in ]",
-                sendAndReceiveOneMessageFromServer("post-wish Alex cat"));
+        assertEquals("Post-wish is not allowed when user is not logged in!",
+                "[ You are not logged in ]",
+                sendAndReceiveMessageFromServer("register Alex 123"
+                        + System.lineSeparator()
+                        + "post-wish Alex cat"));
     }
 
     @Test
     public void testPostWishCommandWithIncompleteInput() {
-        sendAndReceiveOneMessageFromServer("register Alex 123");
-        assertEquals("[ Incomplete command! Please enter full command ]",
-                sendAndReceiveTwoMessagesFromServer("login Alex 123", "post-wish Alex"));
+        assertEquals("Incomplete command!",
+                "[ Incomplete command! Please enter full command ]",
+                sendAndReceiveMessageFromServer("register Alex 123"
+                        + System.lineSeparator()
+                        + "login Alex 123"
+                        + System.lineSeparator()
+                        + "post-wish Alex"));
     }
 
     @Test
     public void testGetWishCommandWithOneWish() {
-        sendAndReceiveOneMessageFromServer("register Alex 123");
-        sendAndReceiveOneMessageFromServer("register Sian 456");
-        assertEquals("[ Sian: [dog] ]",
-                sendAndReceiveThreeMessagesFromServer("login Alex 123",
-                        "post-wish Sian dog", "get-wish"));
+        assertEquals("Successfully get-wish!",
+                "[ Sian: [dog] ]",
+                sendAndReceiveMessageFromServer("register Alex 123"
+                        + System.lineSeparator()
+                        + "register Sian 456"
+                        + System.lineSeparator()
+                        + "login Alex 123"
+                        + System.lineSeparator()
+                        + "post-wish Sian dog"
+                        + System.lineSeparator()
+                        + "get-wish"));
     }
 
     @Test
     public void testGetWishCommandWithMoreThanOneWish() {
-        sendAndReceiveOneMessageFromServer("register Alex 123");
-        sendAndReceiveOneMessageFromServer("register Sian 456");
-        sendAndReceiveThreeMessagesFromServer("login Alex 123", "post-wish Sian dog", "logout");
-        String result = sendAndReceiveThreeMessagesFromServer("login Alex 123",
-                "post-wish Sian cat", "get-wish");
-        assertTrue(result.contains("cat"));
-        assertTrue(result.contains("dog"));
+        String result = sendAndReceiveMessageFromServer("register Alex 123"
+                + System.lineSeparator()
+                + "register Sian 456"
+                + System.lineSeparator()
+                + "login Alex 123"
+                + System.lineSeparator()
+                + "post-wish Sian dog"
+                + System.lineSeparator()
+                + "post-wish Sian cat"
+                + System.lineSeparator()
+                + "get-wish");
+
+        assertTrue("Wish must contain cat!", result.contains("cat"));
+        assertTrue("Wish must contain dog!", result.contains("dog"));
     }
 
     @Test
     public void testGetWishCommandWithNoStudentsWithWishes() {
-        sendAndReceiveOneMessageFromServer("register Alex 123");
-        assertEquals("[ There are no students present in the wish list ]",
-                sendAndReceiveTwoMessagesFromServer("login Alex 123", "get-wish"));
+        assertEquals("No student wishes in wish list!",
+                "[ There are no students present in the wish list ]",
+                sendAndReceiveMessageFromServer("register Alex 123"
+                        + System.lineSeparator()
+                        + "login Alex 123"
+                        + System.lineSeparator()
+                        + "get-wish"));
     }
 
     @Test
     public void testGetWishCommandWhenUserIsNotLoggedIn() {
-        assertEquals("[ You are not logged in ]",
-                sendAndReceiveOneMessageFromServer("get-wish"));
+        assertEquals("Get-wish is not allowed when user is not logged in!",
+                "[ You are not logged in ]",
+                sendAndReceiveMessageFromServer("get-wish"));
     }
 
     @Test
     public void testLogoutCommandWithSuccess() {
-        sendAndReceiveOneMessageFromServer("register Alex 123");
-        assertEquals("[ Successfully logged out ]",
-                sendAndReceiveTwoMessagesFromServer("login Alex 123", "logout"));
+        assertEquals("User must be successfully logged out!",
+                "[ Successfully logged out ]",
+                sendAndReceiveMessageFromServer("register Alex 123"
+                        + System.lineSeparator()
+                        + "login Alex 123"
+                        + System.lineSeparator()
+                        + "logout"));
     }
 
     @Test
     public void testLogoutCommandWhenUserIsNotLoggedIn() {
-        assertEquals("[ You are not logged in ]",
-                sendAndReceiveOneMessageFromServer("logout"));
+        assertEquals("User can not be logged out before logged in!",
+                "[ You are not logged in ]",
+                sendAndReceiveMessageFromServer("logout"));
     }
 
     @Test
     public void testDisconnectCommand() {
-        assertEquals("[ Disconnected from server ]",
-                sendAndReceiveOneMessageFromServer("disconnect"));
+        assertEquals("User must be disconnected from server!",
+                "[ Disconnected from server ]",
+                sendAndReceiveMessageFromServer("disconnect"));
     }
 
     @Test
     public void testUnknownCommand() {
-        assertEquals("[ Unknown command ]",
-                sendAndReceiveOneMessageFromServer("something"));
+        assertEquals("Unknown command must be entered!",
+                "[ Unknown command ]",
+                sendAndReceiveMessageFromServer("something"));
     }
 
-    private String sendAndReceiveOneMessageFromServer(String message) {
+
+    private synchronized String sendAndReceiveMessageFromServer(String message) {
         String response = "fail";
+        try (Socket socket = new Socket(InetAddress.getLocalHost(), SERVER_PORT);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader readerOfMessage = new BufferedReader(new StringReader(message))) {
 
-        try (Socket socket = new Socket("localhost", SERVER_PORT);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter out = new PrintWriter(socket.getOutputStream())) {
+            String line;
+            while ((line = readerOfMessage.readLine()) != null) {
+                writer.println(line);
+                response = reader.readLine();
 
-            out.println(message);
-            out.flush();
-            response = in.readLine();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return response;
-    }
-
-    private String sendAndReceiveTwoMessagesFromServer(String firstMessage, String secondMessage) {
-        String response = "fail";
-
-        try (Socket socket = new Socket("localhost", SERVER_PORT);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter out = new PrintWriter(socket.getOutputStream())) {
-
-            out.println(firstMessage);
-            out.flush();
-            in.readLine();
-            out.println(secondMessage);
-            out.flush();
-            response = in.readLine();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return response;
-    }
-
-    private String sendAndReceiveThreeMessagesFromServer(String firstMessage, String secondMessage, String thirdMessage) {
-        String response = "fail";
-
-        try (Socket socket = new Socket("localhost", SERVER_PORT);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter out = new PrintWriter(socket.getOutputStream())) {
-
-            out.println(firstMessage);
-            out.flush();
-            in.readLine();
-            out.println(secondMessage);
-            out.flush();
-            in.readLine();
-            out.println(thirdMessage);
-            out.flush();
-            response = in.readLine();
-
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
