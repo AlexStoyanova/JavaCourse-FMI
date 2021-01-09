@@ -8,15 +8,29 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.*;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.ALREADY_LOGGED_IN_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.DISCONNECT_FROM_SERVER_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.GIFT_SUBMITTED_SUCCESSFULLY_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.INCOMPLETE_COMMAND_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.INVALID_COMBINATION_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.INVALID_USERNAME_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.NO_STUDENTS_IN_WISH_LIST_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.NOT_LOGGED_IN_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.NOT_REGISTERED_USER_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.SAME_GIFT_FOR_STUDENT_SUBMITTED_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.SUCCESSFUL_LOGGED_OUT_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.UNKNOWN_COMMAND_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.USER_SUCCESSFUL_LOGGED_IN_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.USER_SUCCESSFUL_REGISTERED_MESSAGE;
+import static bg.sofia.uni.fmi.mjt.wish.list.MessageConstants.USERNAME_TAKEN_MESSAGE;
 
 public class WishListServer implements AutoCloseable {
     private static final int BUFFER_SIZE = 1024;
@@ -42,8 +56,8 @@ public class WishListServer implements AutoCloseable {
             this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
             this.serverSocketChannel = ServerSocketChannel.open();
             this.serverSocketChannel.bind(new InetSocketAddress(port));
-            this.registeredStudents = new HashMap<>();
-            this.usernameByChannel = new HashMap<>();
+            this.registeredStudents = new ConcurrentHashMap<>();
+            this.usernameByChannel = new ConcurrentHashMap<>();
         } catch (IOException e) {
             System.out.println(MESSAGE_PROBLEM_NETWORK_COMMUNICATION);
             e.printStackTrace();
