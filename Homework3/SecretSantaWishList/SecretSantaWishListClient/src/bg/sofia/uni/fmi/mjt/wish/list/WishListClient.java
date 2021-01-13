@@ -7,9 +7,9 @@ import java.nio.channels.SocketChannel;
 import java.util.Scanner;
 
 public class WishListClient {
-    private static final String SERVER_HOST = "localhost";
     private static final int BUFFER_SIZE = 1024;
     private static final ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+    private static final String SERVER_HOST = "localhost";
     private static final String PROBLEM_NETWORK_COMMUNICATION =
             "There is a problem with the network communication";
     private static final String DISCONNECT = "disconnect";
@@ -42,18 +42,13 @@ public class WishListClient {
                 buffer.get(byteArray);
                 String reply = new String(byteArray, "UTF-8");
                 System.out.println(reply);
-                //if (DISCONNECT.equalsIgnoreCase(message)) {
-                  //  break;
-                //}
+                if (DISCONNECT.equalsIgnoreCase(message)) {
+                    break;
+                }
             }
         } catch (IOException e) {
             System.out.println(PROBLEM_NETWORK_COMMUNICATION);
             e.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) {
-        WishListClient client = new WishListClient(8888);
-        client.start();
     }
 }
