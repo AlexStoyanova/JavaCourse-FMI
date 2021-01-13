@@ -17,7 +17,7 @@ public class WeatherForecastClient {
     private static final String CITY_NOT_FOUND_MESSAGE = "The city is not found!";
     private static final String INFORMATION_COULD_NOT_BE_RETRIEVED_MESSAGE =
             "Information regarding the weather for this location could not be retrieved!";
-    private static final String API_KEY = "3ab932ab85d69d2404b47c883fa411e2";
+    private static final String API_KEY = "MyKey";
     private final HttpClient weatherHttpClient;
 
     public WeatherForecastClient(HttpClient weatherHttpClient) {
