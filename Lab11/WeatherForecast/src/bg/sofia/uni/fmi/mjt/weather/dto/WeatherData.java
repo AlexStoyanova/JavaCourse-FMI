@@ -1,12 +1,18 @@
 package bg.sofia.uni.fmi.mjt.weather.dto;
 
+import com.google.gson.annotations.SerializedName;
+
+import java.util.Objects;
+
 public class WeatherData {
     private double temp;
-    private double feels_like;
 
-    public WeatherData(double temp, double feels_like) {
+    @SerializedName("feels_like")
+    private double feelsLike;
+
+    public WeatherData(double temp, double feelsLike) {
         this.temp = temp;
-        this.feels_like = feels_like;
+        this.feelsLike = feelsLike;
     }
 
     public double getTemp() {
@@ -14,6 +20,24 @@ public class WeatherData {
     }
 
     public double getFeels_like() {
-        return feels_like;
+        return feelsLike;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof WeatherData)) {
+            return false;
+        }
+
+        WeatherData data = (WeatherData) obj;
+        return this.temp == data.temp && this.feelsLike == data.feelsLike;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(temp, feelsLike);
     }
 }

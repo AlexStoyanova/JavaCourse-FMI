@@ -13,14 +13,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
-import java.util.LinkedList;
-import java.util.List;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -47,8 +45,8 @@ public class WeatherForecastClientTest {
                 .thenReturn(httpResponseMock);
 
         WeatherData main = new WeatherData(25.5, 28.0);
-        List<WeatherCondition> weather = new LinkedList<>();
-        weather.add(new WeatherCondition("слънчево"));
+        WeatherCondition[] weather = new WeatherCondition[1];
+        weather[0] = new WeatherCondition("слънчево");
         WeatherForecast weatherForecast = new WeatherForecast(weather, main);
 
         String json = new Gson().toJson(weatherForecast);
@@ -56,9 +54,8 @@ public class WeatherForecastClientTest {
         when(httpResponseMock.body()).thenReturn(json);
 
         WeatherForecast result = weatherForecastClient.getForecast("Sofia");
-        assertEquals( 25.5, result.getMain().getTemp(), 0.01);
-        assertEquals(28.0, result.getMain().getFeels_like(), 0.01);
-        assertEquals("слънчево", result.getWeather().get(0).getDescription());
+        assertEquals(result.getMain(), main);
+        assertArrayEquals(result.getWeather(), weather);
     }
 
     @Test(expected = LocationNotFoundException.class)
@@ -68,9 +65,6 @@ public class WeatherForecastClientTest {
                 .thenReturn(httpResponseMock);
 
         when(httpResponseMock.statusCode()).thenReturn(404);
-        WeatherForecast result = weatherForecastClient.getForecast("");
+        weatherForecastClient.getForecast("Something");
     }
-
-
-
 }
