@@ -299,7 +299,7 @@ public class WishListServerTest {
     }
 
 
-    private synchronized String sendAndReceiveMessageFromServer(String message) {
+    private String sendAndReceiveMessageFromServer(String message) {
         String response = "fail";
         try (Socket socket = new Socket(InetAddress.getLocalHost(), SERVER_PORT);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));

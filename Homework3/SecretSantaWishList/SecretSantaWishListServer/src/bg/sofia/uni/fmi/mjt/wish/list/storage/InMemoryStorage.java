@@ -3,17 +3,17 @@ package bg.sofia.uni.fmi.mjt.wish.list.storage;
 import bg.sofia.uni.fmi.mjt.wish.list.user.UserData;
 
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryStorage implements Storage {
     private final Map<String, UserData> registeredStudents;
     private final Map<SocketChannel, String> usernameByChannel;
 
     public InMemoryStorage() {
-        registeredStudents = new ConcurrentHashMap<>();
-        usernameByChannel = new ConcurrentHashMap<>();
+        registeredStudents = new HashMap<>();
+        usernameByChannel = new HashMap<>();
     }
 
     public String getUsernameByChannel(SocketChannel channel) {
